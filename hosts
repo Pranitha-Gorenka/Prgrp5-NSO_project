@@ -1,10 +1,14 @@
 [HAproxy]
 proxy1
-
+proxy2
 
 [nodes]
 node1 
 node2 
+node3
+
+[Bastion]
+bastion
 
 [all:vars]
 ansible_user=ubuntu
