@@ -1,0 +1,10 @@
+[HAproxy]
+proxy1
+
+
+[nodes]
+node1 
+node2 
+
+[all:vars]
+ansible_user=ubuntu

@@ -1,0 +1,28 @@
+# Configuration file for monitoring solution
+
+[agent]
+interval = "10s"
+round_interval = true
+metric_batch_size = 1000
+metric_buffer_limit = 10000
+collection_jitter = "0s"
+flush_interval = "10s"
+flush_jitter = "0s"
+precision = ""
+debug = false
+quiet = false
+logfile = ""
+omit_hostname = false
+
+[[inputs.ping]]
+urls = [{% for host in groups['nodes'] %}"{{ hostvars[host].ansible_facts.ansible_default_ipv4.address }}"{% if not loop.last %}, {% endif %}{% endfor %}]
+count = 3
+interval = "1s"
+timeout = "1s"
+
+[[outputs.influxdb]]
+urls = ["http://influxdb:8086"]
+database = "monitoring_db"
+username = "admin"
+password = "password123"
+

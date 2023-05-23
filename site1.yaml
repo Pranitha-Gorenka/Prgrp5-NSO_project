@@ -1,0 +1,212 @@
+- hosts: nodes
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Copy Flask app to remote server
+      copy:
+        src: ./application2.py
+        dest: /home/ubuntu/application2.py
+        mode: '0755'
+
+    - name: Install Python 3 and pip
+      become: true
+      apt:
+        name:
+          - python3
+          - python3-pip
+        update_cache: yes
+
+    - name: Install Flask
+      become: true
+      pip:
+        name: Flask
+
+    - name: Create systemd unit file for application2
+      copy:
+        src: ./application2.service
+        dest: /etc/systemd/system/application2.service
+        mode: '0777'
+
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable and start application2 service
+      systemd:
+        name: application2.service
+        state: started
+        enabled: yes
+        
+    - name: Install SNMP daemon on Service Nodes
+      become: true
+      apt:
+        name: snmpd
+        state: present
+        
+    - name: Install snmp-mibs-downloader
+      become: true
+      apt:
+        name: snmp-mibs-downloader
+        state: present
+       
+    - name: copy snmpd.conf file
+      template: 
+        src="./snmpd.conf"
+        dest="/etc/snmp/snmpd.conf"  
+        
+    - name: restarting snmpd
+      service:
+        name: snmpd
+        state: restarted
+        enabled: yes  
+        
+
+- hosts: HAproxy
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        
+    - name: Install SNMP daemon on Service Nodes
+      become: true
+      apt:
+        name: snmpd
+        state: present
+        
+    - name: Install snmp-mibs-downloader
+      become: true
+      apt:
+        name: snmp-mibs-downloader
+        state: present
+
+    - name: Install HAProxy
+      apt:
+        name: haproxy
+        state: latest
+
+    - name: Configure HAProxy
+      template:
+        src: ./haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+      vars:
+         haproxy_ip: "{{ hostvars['proxy1']['ansible_default_ipv4']['address'] }}"
+         haproxy_ip: "{{ hostvars['proxy2']['ansible_default_ipv4']['address'] }}"
+
+    - name: Restart haproxy
+      ansible.builtin.shell:
+        cmd: "sudo service haproxy restart"
+
+    - name: Install and configure keepalived on PROXY Nodes
+      become: true
+      apt:
+        name: keepalived
+        state: present
+        
+    - name: Configure keepalived on PROXY Nodes
+      template:
+        src="./keepalived.conf.j2"
+        dest="/etc/keepalived/keepalived.conf"
+        
+    - name: Restart Keepalived service
+      service:
+        name: keepalived
+        state: restarted
+        
+        
+-  hosts: HAproxy
+   tasks:
+     - name: Display haproxy IP address
+       debug:
+        var: hostvars[inventory_hostname]['ansible_default_ipv4']['address']
+
+     - name: Send HTTP request to haproxy
+       uri:
+        url: http://{{ansible_default_ipv4.address}}
+        method: GET
+        return_content: yes
+        status_code: 200
+       register: curl_output
+       with_sequence: start=1 end=3
+       delay: 5
+       when: inventory_hostname in ['haproxy']
+
+     - name: Display HTTP response
+       debug:
+        msg: "{{ curl_output.results }}"
+        
+-  hosts: HAproxy
+   tasks:          
+    - name: Run SNMP command
+      command: snmpget -t 1 -r 1 -v2c -c public {{ansible_default_ipv4.address}}:161 1.3.6.1.2.1.1.1.0
+      register: snmp_output
+      with_sequence: start=1 end=3
+      delay: 5
+
+    - name: Print SNMP result
+      debug:
+        var: snmp_output.results[0].stdout
+        
+-  hosts: Bastion
+   become: true
+   tasks:
+    - name: Install Prometheus 
+      apt:
+        name: prometheus
+        state: present
+        
+    - name: Update package repository cache
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name: apt-transport-https, software-properties-common
+        state: present
+
+    - name: Import repository signing key
+      apt_key:
+        url: https://packages.grafana.com/gpg.key
+        state: present
+    
+    - name: Add Grafana repository
+      apt_repository:
+        repo: "deb https://packages.grafana.com/oss/deb stable main"
+        state: present
+        validate_certs: no    
+
+    - name: Update package repository cache
+      apt:
+        update_cache: yes
+
+    - name: Install Grafana
+      apt:
+        name: grafana
+        state: present
+        
+    - name: Create monitoring directory
+      file:
+        path: /etc/monitoring
+        state: directory
+
+    - name: Copy monitoring_solution.cfg.j2 file
+      copy:
+        src="monitoring-config.conf.j2"
+        dest="/etc/monitoring/monitoring-config.conf.j2"
+        owner="root"
+        group="root"
+        mode="0644"
+
+    - name: Allow SSH access to BASTION Host
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        line: "AllowUsers admin"
+        state: present
+
+    - name: Restart SSH service on BASTION Host
+      service:
+        name: ssh
+        state: restarted
+

@@ -1,0 +1,26 @@
+vrrp_script check_haproxy {
+    script "/usr/bin/pgrep haproxy"
+    interval 2
+    fall 2
+    rise 2
+}
+
+vrrp_instance VI_1 {
+    state MASTER
+    interface ens3
+    virtual_router_id 51
+    priority 100
+    authentication {
+        auth_type PRANITHA
+        auth_pass prani123
+    }
+    virtual_ipaddress {
+       {% for host in groups["HAproxy"] %}
+        server {{ host }} {{ hostvars[host]["ansible_default_ipv4"]["address"] }}/24 dev ens3
+{% endfor %} 
+    }
+    track_script {
+        check_haproxy
+    }
+}
+
