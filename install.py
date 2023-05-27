@@ -278,7 +278,7 @@ with open(hosts_file_path, "w") as hosts_file:
     hosts_file.write(f"node1\n")
     hosts_file.write(f"node2\n")
     hosts_file.write(f"node3\n")
-    hosts_file.write("\n[all:vars]\nansible_user=Ubuntu \n")
+    hosts_file.write("\n[all:vars]\nansible_user=ubuntu \n")
     hosts_file.write("\n##REMOVED sshkey entry, handled by external SSH config file ##  \n")
     
 
@@ -310,7 +310,7 @@ floating_list_output = subprocess.run(floating_list, shell=True, capture_output=
 floating_ips = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', floating_list_output)
 fixed_ips = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d+', floating_list_output)
 
-print("Validates Operation")
+print(f"{formatted_time}: Validates Operation")
 for floating_ip in floating_ips:
     print("")
 
@@ -324,7 +324,6 @@ for i, node in enumerate(existing_nodes, start=1):
     response = requests.get(url, proxies={"http": floating_ip, "https": floating_ip})
 
     # Print the page content
-    print(f"Response {i}: {response.content.decode()}")
+    print(f"{formatted_time}: Response {i}: {response.content.decode()}")
 
-print("OK")
-
+print(f"{formatted_time}: OK")
