@@ -155,19 +155,19 @@ while True:
             print(f"{formatted_time}: Error executing playbook.")
 
         # Run Ansible Test environment playbook
-        ansible_playbook = f"ansible-playbook -i hosts --ssh-common-args='-F./SSHconfig' site1.yaml"
+        ansible_playbook = f"ansible-playbook -i hosts --ssh-common-args='-F./SSHconfig' site.yaml"
 
         playbook_execution = subprocess.run(ansible_playbook, shell=True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         if playbook_execution.returncode == 0:
             print(f"{formatted_time}: OK")
         else:
-            ansible_playbook1 = f"ansible-playbook -i hosts site1.yaml"
+            ansible_playbook1 = f"ansible-playbook -i hosts site.yaml"
             playbook_execution1 = subprocess.run(ansible_playbook1, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             if playbook_execution1.returncode == 0:
                 print(f"{formatted_time}: OK")
             else:
-                ansible_playbook2 = f"ansible-playbook site1.yaml"
+                ansible_playbook2 = f"ansible-playbook site.yaml"
                 playbook_execution2 = subprocess.run(ansible_playbook2, shell=True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             if playbook_execution2.returncode == 0:
                 print(f"{formatted_time}: OK") 
