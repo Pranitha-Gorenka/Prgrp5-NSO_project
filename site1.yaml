@@ -1,6 +1,6 @@
 - hosts: nodes
   become: true
-  gather_facts: true
+  gather_facts: false
 
   tasks:
     - name: Copy Flask app to remote server
@@ -37,30 +37,30 @@
         name: application2.service
         state: started
         enabled: yes
-        
+
     - name: Install SNMP daemon on Service Nodes
       become: true
       apt:
         name: snmpd
         state: present
-        
+
     - name: Install snmp-mibs-downloader
       become: true
       apt:
         name: snmp-mibs-downloader
         state: present
-       
+
     - name: copy snmpd.conf file
-      template: 
+      copy:
         src="./snmpd.conf"
-        dest="/etc/snmp/snmpd.conf"  
-        
+        dest="/etc/snmp/snmpd.conf"
+
     - name: restarting snmpd
       service:
         name: snmpd
         state: restarted
-        enabled: yes  
-        
+        enabled: yes
+
 
 - hosts: HAproxy
   become: true
@@ -69,29 +69,34 @@
     - name: Update apt cache
       apt:
         update_cache: yes
-        
+
     - name: Install SNMP daemon on Service Nodes
       become: true
       apt:
         name: snmpd
         state: present
-        
+
     - name: Install snmp-mibs-downloader
       become: true
       apt:
         name: snmp-mibs-downloader
         state: present
-        
+
     - name: copy snmpd.conf file
-      template: 
+      copy:
         src="./snmpd.conf"
-        dest="/etc/snmp/snmpd.conf"  
-        
+        dest="/etc/snmp/snmpd.conf"
+
+    - name: Install SNMP tools
+      become: true
+      apt:
+        name: snmp
+        state: present
     - name: restarting snmpd
       service:
         name: snmpd
         state: restarted
-        enabled: yes 
+        enabled: yes
 
     - name: Install HAProxy
       apt:
@@ -103,30 +108,32 @@
         src: ./haproxy.cfg.j2
         dest: /etc/haproxy/haproxy.cfg
       vars:
-         haproxy_ip: "{{ hostvars['proxy1']['ansible_default_ipv4']['address'] }}"
-         haproxy_ip: "{{ hostvars['proxy2']['ansible_default_ipv4']['address'] }}"
+         proxy1_ip: "{{ hostvars['proxy1']['ansible_default_ipv4']['address'] }}"
+         proxy2_ip: "{{ hostvars['proxy2']['ansible_default_ipv4']['address'] }}"
+ 
+    - name: Restart haproxy service
+      service:
+        name: haproxy
+        state: restarted
 
-    - name: Restart haproxy
-      ansible.builtin.shell:
-        cmd: "sudo service haproxy restart"
 
     - name: Install and configure keepalived on PROXY Nodes
       become: true
       apt:
         name: keepalived
         state: present
-        
+
     - name: Configure keepalived on PROXY Nodes
       template:
         src="./keepalived.conf.j2"
         dest="/etc/keepalived/keepalived.conf"
-        
+
     - name: Restart Keepalived service
       service:
         name: keepalived
         state: restarted
-        
-        
+
+
 -  hosts: HAproxy
    tasks:
      - name: Display haproxy IP address
@@ -142,14 +149,13 @@
        register: curl_output
        with_sequence: start=1 end=3
        delay: 5
-       when: inventory_hostname in ['haproxy']
 
      - name: Display HTTP response
        debug:
         msg: "{{ curl_output.results }}"
-        
+
 -  hosts: HAproxy
-   tasks:          
+   tasks:
     - name: Run SNMP command
       command: snmpget -t 1 -r 1 -v2c -c public {{ansible_default_ipv4.address}}:161 1.3.6.1.2.1.1.1.0
       register: snmp_output
@@ -159,34 +165,34 @@
     - name: Print SNMP result
       debug:
         var: snmp_output.results[0].stdout
-        
+
 -  hosts: Bastion
    become: true
    tasks:
-    - name: Install Prometheus 
+    - name: Install Prometheus
       apt:
         name: prometheus
         state: present
-        
+
     - name: Update package repository cache
       apt:
         update_cache: yes
 
     - name: Install required packages
       apt:
-        name: apt-transport-https, software-properties-common
-        state: present
+         name: apt-transport-https, software-properties-common
+         state: present
 
     - name: Import repository signing key
       apt_key:
         url: https://packages.grafana.com/gpg.key
         state: present
-    
+
     - name: Add Grafana repository
       apt_repository:
         repo: "deb https://packages.grafana.com/oss/deb stable main"
         state: present
-        validate_certs: no    
+        validate_certs: no
 
     - name: Update package repository cache
       apt:
@@ -196,7 +202,7 @@
       apt:
         name: grafana
         state: present
-        
+
     - name: Create monitoring directory
       file:
         path: /etc/monitoring
@@ -220,4 +226,3 @@
       service:
         name: ssh
         state: restarted
-
