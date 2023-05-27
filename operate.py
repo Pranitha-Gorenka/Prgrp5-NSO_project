@@ -170,9 +170,7 @@ while True:
                 ansible_playbook2 = f"ansible-playbook site1.yaml"
                 playbook_execution2 = subprocess.run(ansible_playbook2, shell=True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             if playbook_execution2.returncode == 0:
-                print(f"{formatted_time}: OK")
-            else:
-                print(f"{formatted_time}: Error executing playbook.") 
+                print(f"{formatted_time}: OK") 
         time.sleep(30)
        
         # Get floating IPs
@@ -183,7 +181,7 @@ while True:
         floating_ips = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', floating_list_output)
         fixed_ips = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d+', floating_list_output)
 
-        print("Validates Operation")
+        print(f"{formatted_time}: Validates Operation")
         for floating_ip in floating_ips:
             print("")
 
@@ -197,7 +195,6 @@ while True:
             response = requests.get(url, proxies={"http": floating_ip, "https": floating_ip})
 
             # Print the page content
-            print(f"Response {i}: {response.content.decode()}")
+            print(f"{formatted_time}: Response {i}: {response.content.decode()}")
 
-        print("OK")
-
+        print(f"{formatted_time}: OK")
