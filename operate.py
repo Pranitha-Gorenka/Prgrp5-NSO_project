@@ -53,8 +53,8 @@ while True:
     
     result = subprocess.run("openstack server list -c Name -f value", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     existing_nodes = re.findall(r'^node\d+', result.stdout, re.MULTILINE)
-    print(f"{formatted_time}: Checking solution, we have: {len(existing_nodes)} nodes.")
-    
+    print(f"{formatted_time}: Checking solution, we have: {len(existing_nodes)} nodes.Sleeping..")
+    time.sleep(30)
     if len(existing_nodes) == num_nodes:
         # Update the number of nodes in server.conf
         config_lines = [line.replace(f"num_nodes = {num_nodes}", f"num_nodes = {num_nodes + 1}") for line in config_lines]
