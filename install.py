@@ -205,7 +205,7 @@ print(floating_ip_proxy1)
 # Build SSH config file
 ssh_config_content = f"""Host bastion
   HostName {floating_ip_bastion}
-  User Ubuntu
+  User ubuntu
   IdentityFile ~/.ssh/authorized_keys
   UserKnownHostsFile=~/dev/null
   StrictHostKeyChecking no
@@ -213,7 +213,7 @@ ssh_config_content = f"""Host bastion
 
 Host proxy1
   HostName {floating_ip_proxy1}
-  User Ubuntu
+  User ubuntu
   IdentityFile ~/.ssh/authorized_keys
   UserKnownHostsFile=~/dev/null
   StrictHostKeyChecking no
@@ -222,7 +222,7 @@ Host proxy1
 
 Host proxy2
   HostName {node_ips[0]}
-  User Ubuntu
+  User ubuntu
   IdentityFile ~/.ssh/authorized_keys
   UserKnownHostsFile=~/dev/null
   StrictHostKeyChecking no
@@ -231,7 +231,7 @@ Host proxy2
 
 Host node1
   HostName {node_ips[1]}
-  User Ubuntu
+  User ubuntu
   IdentityFile ~/.ssh/authorized_keys
   UserKnownHostsFile=~/dev/null
   StrictHostKeyChecking no
@@ -240,7 +240,7 @@ Host node1
 
 Host node2
   HostName {node_ips[2]}
-  User Ubuntu
+  User ubuntu
   IdentityFile ~/.ssh/authorized_keys
   UserKnownHostsFile=~/dev/null
   StrictHostKeyChecking no
@@ -249,7 +249,7 @@ Host node2
 
 Host node3
   HostName {node_ips[3]}
-  User Ubuntu
+  User ubuntu
   IdentityFile ~/.ssh/authorized_keys
   UserKnownHostsFile=~/dev/null
   StrictHostKeyChecking no
@@ -285,7 +285,7 @@ with open(hosts_file_path, "w") as hosts_file:
 # Run Ansible playbook for deplyoment
 print(f"{formatted_time}: Running playbook")
 ansible_playbook = f"ansible-playbook -i hosts --ssh-common-args='-F./{tag}_SSHconfig' site.yaml"
-playbook_execution = subprocess.run(ansible_playbook, shell=True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+playbook_execution = subprocess.run(ansible_playbook, shell=True)
 
 if playbook_execution.returncode == 0:
     print(f"{formatted_time}: OK")
@@ -294,13 +294,8 @@ else:
     playbook_execution1 = subprocess.run(ansible_playbook1, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     if playbook_execution1.returncode == 0:
         print(f"{formatted_time}: OK")
-    else:
-       ansible_playbook2 = f"ansible-playbook site.yaml"
-       playbook_execution2 = subprocess.run(ansible_playbook2, shell=True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-       if playbook_execution2.returncode == 0:
-           print(f"{formatted_time}: OK")
-       else:
-           print(f"{formatted_time}: Error executing playbook.") 
+    else: 
+        print(f"{formatted_time}: Error executing playbook.") 
            
 # Get floating IPs
 floating_list = "openstack server show proxy1 -c addresses -f value"
