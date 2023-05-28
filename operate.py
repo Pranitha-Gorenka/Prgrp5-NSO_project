@@ -61,7 +61,27 @@ while True:
         with open('server.conf', 'w') as file:
             file.writelines(config_lines)
         time.sleep(30)
+    elif len(existing_nodes) > num_nodes:
+        extra_nodes = len(existing_nodes) - num_nodes
+        print(f"{formatted_time}: we have {extra_nodes} extra nodes ")
         
+        result = subprocess.run(f"openstack server list -c Name -f value", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        remove_nodes = re.findall(r'^node\d+', result.stdout, re.MULTILINE)
+    
+        remove_count = 0  # Counter for removed nodes
+    
+        for node in remove_nodes:
+            if remove_count >= extra_nodes:
+                break  # Stop removing nodes once the extra nodes are removed
+        
+            run = subprocess.run(f"openstack server delete {node}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        
+            if run.returncode == 0:
+                remove_count += 1
+                print(f"{formatted_time}: deleting {node} .. ")
+            else:
+                print(f"{formatted_time}: failed to delete {node}. Error: {run.stderr}")
+            
     elif len(existing_nodes) < num_nodes:
         num_new_nodes = num_nodes - len(existing_nodes)
         
@@ -185,6 +205,7 @@ while True:
             response = requests.get(url, proxies={"http": floating_ip, "https": floating_ip})
 
             # Print the page content
-            print(f"{formatted_time}: Response {i}: {response.content.decode()}")
+            #print(f"{formatted_time}: Response {i}: {response.content.decode()}")
 
         print(f"{formatted_time}: OK")
+       
