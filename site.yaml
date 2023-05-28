@@ -81,17 +81,24 @@
       apt:
         name: snmp-mibs-downloader
         state: present
+        
+    - name: Install snmp package
+      become: true
+      apt:
+        name: snmp
+        state: present
+        
+    - name: Install SNMP tools
+      become: true
+      apt:
+        name: snmp
+        state: present
 
     - name: copy snmpd.conf file
       copy:
         src="./snmpd.conf"
         dest="/etc/snmp/snmpd.conf"
 
-    - name: Install SNMP tools
-      become: true
-      apt:
-        name: snmp
-        state: present
     - name: restarting snmpd
       service:
         name: snmpd
