@@ -64,7 +64,6 @@ while True:
         
     elif len(existing_nodes) < num_nodes:
         num_new_nodes = num_nodes - len(existing_nodes)
-        print(f"{formatted_time}: Detecting lostnode : {num_new_nodes} .")
         
         # Create new nodes
         for i in range(num_new_nodes):
@@ -79,6 +78,8 @@ while True:
             create_server = f"openstack server create --flavor b.1c1gb --network {tag}_network --key-name {tag}_key --boot-from-volume 8 --image e6cbd963-8c28-4551-a837-e3b85da5d7a1 --security-group {tag}_security-group --wait {new_node_name}"
             subprocess.run(create_server, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             existing_nodes.append(new_node_name)
+            print(f"{formatted_time}: Detecting lostnode : {tag}_{new_node_name} .")
+            time.sleep(10)
             print(f"{formatted_time}: created : {tag}_{new_node_name}")
             
         # Fetch the IP addresses of the new nodes
