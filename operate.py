@@ -91,6 +91,8 @@ while True:
                 if ip_addresses:
                     node_ips.append(ip_addresses[0])
 
+        time.sleep(30)
+        
         # Build hosts file
         with open('hosts', 'r') as file:
             host_lines = file.readlines()
@@ -136,7 +138,7 @@ while True:
                         break
 
             if not host_entry_found:
-                updated_ssh_lines.append(f"\nHost {new_node_name}\n  HostName {node_ip}\n  User Ubuntu\n  IdentityFile ~/.ssh/authorized_keys\n  UserKnownHostsFile=/dev/null\n  StrictHostKeyChecking no\n  PasswordAuthentication no\n  ProxyJump bastion\n")
+                updated_ssh_lines.append(f"\nHost {new_node_name}\n  HostName {node_ip}\n  User ubuntu\n  IdentityFile ~/.ssh/authorized_keys\n  UserKnownHostsFile=/dev/null\n  StrictHostKeyChecking no\n  PasswordAuthentication no\n  ProxyJump bastion\n")
 
         with open(f'{tag}_SSHconfig', 'w') as file:
             file.writelines(updated_ssh_lines)
@@ -145,21 +147,10 @@ while True:
         
         # Run Ansible playbook for deployment
         print(f"{formatted_time}: Running playbook")
+        
         ansible_playbook = f"ansible-playbook -i hosts --ssh-common-args='-F./{tag}_SSHconfig' site.yaml"
-
-        playbook = subprocess.run(ansible_playbook, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
+        playbook = subprocess.run(ansible_playbook, shell=True)
         if playbook.returncode == 0:
-            print("")
-        else:
-            print(f"{formatted_time}: Error executing playbook.")
-
-        # Run Ansible Test environment playbook
-        ansible_playbook = f"ansible-playbook -i hosts --ssh-common-args='-F./SSHconfig' site.yaml"
-
-        playbook_execution = subprocess.run(ansible_playbook, shell=True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-        if playbook_execution.returncode == 0:
             print(f"{formatted_time}: OK")
         else:
             ansible_playbook1 = f"ansible-playbook -i hosts site.yaml"
@@ -167,10 +158,8 @@ while True:
             if playbook_execution1.returncode == 0:
                 print(f"{formatted_time}: OK")
             else:
-                ansible_playbook2 = f"ansible-playbook site.yaml"
-                playbook_execution2 = subprocess.run(ansible_playbook2, shell=True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            if playbook_execution2.returncode == 0:
-                print(f"{formatted_time}: OK") 
+                print(f"{formatted_time}:Error in executing playbook")
+   
         time.sleep(30)
        
         # Get floating IPs
