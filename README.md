@@ -1,6 +1,6 @@
 # NSO_project
 
- NSO project aims to automate the deployment and configuration of a network infrastructure using OpenStack and Ansible. It provides a set of programs and scripts to streamline the setup process.
+NSO project aims to automate the deployment and configuration of a network infrastructure using OpenStack and Ansible. It provides a set of programs and scripts to streamline the setup process.
 
 1. install.py
 The INSTALL.py script is responsible for automating the deployment process. It performs the following tasks:
@@ -19,13 +19,13 @@ The script utilizes various OpenStack commands, subprocess calls, and Python lib
 command to run:
  install.py  <openrc> <tag> <ssh_key>
 
-2.operate.py
+2. operate.py
 OPERATE.py program  automates the deployment and management of a set of nodes in an OpenStack environment. It utilizes the OpenStack command-line tools and Ansible playbook for server creation, configuration, and deployment. The program reads a configuration file, server.conf, to determine the required number of nodes and checks the existing nodes in the environment. If the required number of nodes is not met, the program creates new nodes, fetches their IP addresses, and updates the hosts and SSH config files. It then runs an Ansible playbook to deploy the required services on the nodes. Finally, it validates the operation by accessing the nodes' IP addresses and prints the response content.
 
 command to run:
  operate.py  <openrc> <tag> <ssh_key>
   
-3.clean.py
+3. clean.py
 clean.py program cleans up resources created by the OPERATE.py and install.py  programs in an OpenStack environment. It deletes the nodes, servers, subnets, networks, routers, key pairs, security groups, and volumes associated with the specified project. The program uses the OpenStack command-line tools to perform the cleanup tasks and prints the status of the remaining resources after the cleanup process is completed.
 command to run:
  clean.py  <openrc> <tag> 
