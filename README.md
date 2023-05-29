@@ -15,7 +15,6 @@ Executes an Ansible playbook for further configuration and provisioning of the n
 playbook aims to automate the deployment and configuration of a Flask application on multiple nodes, configure HAproxy load balancer and SNMP monitoring, and set up monitoring tools such as Prometheus and Grafana on a Bastion host.
 
 The script utilizes various OpenStack commands, subprocess calls, and Python libraries like dotenv, datetime, requests, and socket to perform the necessary operations.
-
 command to run:
  install.py <openrc> <tag> <ssh_key>
 
