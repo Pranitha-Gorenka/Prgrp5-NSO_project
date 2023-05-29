@@ -27,6 +27,5 @@ command to run:
   
 3. cleanup.py
 clean.py program cleans up resources created by the OPERATE.py and install.py  programs in an OpenStack environment. It deletes the nodes, servers, subnets, networks, routers, key pairs, security groups, and volumes associated with the specified project. The program uses the OpenStack command-line tools to perform the cleanup tasks and prints the status of the remaining resources after the cleanup process is completed.
-command to run:
- cleanup.py <openrc> <tag> 
+command to run: cleanup.py <openrc> <tag> 
 
