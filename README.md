@@ -15,17 +15,20 @@ Executes an Ansible playbook for further configuration and provisioning of the n
 playbook aims to automate the deployment and configuration of a Flask application on multiple nodes, configure HAproxy load balancer and SNMP monitoring, and set up monitoring tools such as Prometheus and Grafana on a Bastion host.
 The script utilizes various OpenStack commands, subprocess calls, and Python libraries like dotenv, datetime, requests, and socket to perform the necessary operations.
 
-command to run:  install.py <rcfile> <tag> <sshkey> 
+command to run:  
+           install.py openrc tag sshkey 
  
 *operate.py
  
 OPERATE.py program  automates the deployment and management of a set of nodes in an OpenStack environment. It utilizes the OpenStack command-line tools and Ansible playbook for server creation, configuration, and deployment. The program reads a configuration file, server.conf, to determine the required number of nodes and checks the existing nodes in the environment. If the required number of nodes is not met, the program creates new nodes, fetches their IP addresses, and updates the hosts and SSH config files. It then runs an Ansible playbook to deploy the required services on the nodes. Finally, it validates the operation by accessing the nodes' IP addresses and prints the response content.
 
- command to run:" operate.py rcfile tag sshkey 
+ command to run: 
+            operate.py openrc tag sshkey  
  
 *cleanup.py
  
 cleanup.py program cleans up resources created by the OPERATE.py and install.py  programs in an OpenStack environment. It deletes the nodes, servers, subnets, networks, routers, key pairs, security groups, and volumes associated with the specified project. The program uses the OpenStack command-line tools to perform the cleanup tasks and prints the status of the remaining resources after the cleanup process is completed.
 
- command to run:  cleanup.py rcfile tag sshkey
+ command to run: 
+            cleanup.py openrc tag  
 
