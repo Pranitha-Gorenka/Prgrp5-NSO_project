@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from dotenv import load_dotenv
 import os
 import sys
@@ -26,7 +28,7 @@ if not os.path.isfile(openrc_file):
 if not os.path.isfile(ssh_key):
     print(f"Error: File '{ssh_key}' does not exist.")
     sys.exit(1)
-
+    
 # Load environment variables from the OpenRC file
 load_dotenv(openrc_file)
 
@@ -42,7 +44,7 @@ server_names = ["node1", "node2", "node3", "proxy2", "proxy1", "bastion" ]
 network_list = "openstack network list"
 network_name = subprocess.run(network_list, shell=True, capture_output=True, text=True).stdout
 
-print(f"{formatted_time}: checking for nework in the OpenStack project..")
+print(f"{formatted_time}: checking for network in the OpenStack project..")
 # Check if network exists
 if f"{tag}_network" in network_name:
     network_name = f"{tag}_network"
@@ -50,33 +52,52 @@ if f"{tag}_network" in network_name:
 else:
     # Create network
     create_network = f"openstack network create {tag}_network"
-    subprocess.run(create_network, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print(f"{formatted_time}: network {tag}_network does not exists! creating a network..")
-
+    execution1 = subprocess.run(create_network, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if execution1.returncode == 0:
+        print(f"{formatted_time}: network {tag}_network does not exists! creating a network..")
+    else: 
+        print(f"{formatted_time}: {tag}_network not created..")
+        sys.exit(1)
+    
     # Create subnet
     create_subnet = f"openstack subnet create {tag}_network-subnet --network {tag}_network --subnet-range 10.0.1.0/27"
-    subprocess.run(create_subnet, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print(f"{formatted_time}: creating a {tag}_network-subnet for {tag}_network..")
-
+    execution2 = subprocess.run(create_subnet, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if execution2.returncode == 0:
+        print(f"{formatted_time}: creating a {tag}_network-subnet for {tag}_network..")
+    else:
+        print(f"{formatted_time}: {tag}_network-subnet  not created..")
+        sys.exit(1)
+        
     # Create router
     create_router = f"openstack router create {tag}_network-router"
-    subprocess.run(create_router, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print(f"{formatted_time}: creating a router..")
-
+    execution3 = subprocess.run(create_router, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if execution3.returncode == 0:
+        print(f"{formatted_time}: creating a router..")
+    else:
+        print(f"{formatted_time}: {tag}_router  not created..")
+        sys.exit(1)
+        
     # Set external gateway for the router
     create_ext = f"openstack router set {tag}_network-router --external-gateway ext-net"
-    subprocess.run(create_ext, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print(f"{formatted_time}: creating a external gateway for router..")
-
+    execution4 = subprocess.run(create_ext, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if execution4.returncode == 0:
+        print(f"{formatted_time}: creating a external gateway for router..")
+    else:
+        print(f"{formatted_time}: external gateway not created..")
+        sys.exit(1)
+        
     # Connect subnet to router
     connect = f"openstack router add subnet {tag}_network-router {tag}_network-subnet"
-    subprocess.run(connect, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print(f"{formatted_time}: adding router to subnet..")
+    execution5 = subprocess.run(connect, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if execution5.returncode == 0:
+        print(f"{formatted_time}: adding router to subnet..")
+    else:
+        print(f"{formatted_time}: router not added to subnet..")
+        sys.exit(1)
 
 #create a key
 key_pair = "openstack keypair list"
 key_pair_name = subprocess.run(key_pair, shell=True, capture_output=True, text=True).stdout
-
 print(f"{formatted_time}: checking for {tag}_key in the OpenStack project..")
         
 if f"{tag}_key" in key_pair_name:
@@ -84,10 +105,14 @@ if f"{tag}_key" in key_pair_name:
     print(f"{formatted_time}: keypair found")
 else:
     create_key=f"openstack keypair create --public-key {ssh_key} {tag}_key"
-    subprocess.run(create_key, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print(f"{formatted_time}: creating a {tag}_key..")
+    execution6 = subprocess.run(create_key, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if execution6.returncode == 0:
+        print(f"{formatted_time}: creating a {tag}_key..")
+    else:
+        print(f"{formatted_time}: {tag}_key not created..")
+        sys.exit(1)  
 
-#fetchin localhost ip address
+#fetching localhost ip address
 def get_ip_address():
     hostname = socket.gethostname()
     ip_address = socket.gethostbyname(hostname)
@@ -107,7 +132,8 @@ if f"{tag}_security-group" in security_group_name:
     print(f"{formatted_time}: {tag}_security-group found")
 else:
     create_security_group = f"openstack security group create {tag}_security-group"
-    subprocess.run(create_security_group, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    execution7 = subprocess.run(create_security_group, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
     # Add the required rules to the new security group
     create_ssh_rule = f"openstack security group rule create --protocol tcp --dst-port 22 {tag}_security-group"
     create_http_rule = f"openstack security group rule create --protocol tcp --dst-port 80 {tag}_security-group"
@@ -124,8 +150,13 @@ else:
     subprocess.run(create_snmp_rule, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.run(create_snmpd_rule, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.run(create_icmp_rule, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-    print(f"{formatted_time}: Created a  {tag}_security-group and added the required rules.")
+    
+    if execution7.returncode == 0:
+        print(f"{formatted_time}: Created a  {tag}_security-group and added the required rules.")
+    else:
+        print(f"{formatted_time}: {tag}_security-group not created..")
+        sys.exit(1)  
+    
 
 # Create servers
 
