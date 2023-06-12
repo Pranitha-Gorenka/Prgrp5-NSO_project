@@ -18,6 +18,15 @@ openrc_file = sys.argv[1]
 tag = sys.argv[2]
 ssh_key = sys.argv[3]
 
+# Check if the provided files exist
+if not os.path.isfile(openrc_file):
+    print(f"Error: File '{openrc_file}' does not exist.")
+    sys.exit(1)
+
+if not os.path.isfile(ssh_key):
+    print(f"Error: File '{ssh_key}' does not exist.")
+    sys.exit(1)
+
 # Load environment variables from the OpenRC file
 load_dotenv(openrc_file)
 
