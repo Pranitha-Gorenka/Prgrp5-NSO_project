@@ -14,24 +14,22 @@ Generates an SSH config file and a hosts file for Ansible.
 Executes an Ansible playbook for further configuration and provisioning of the network infrastructure.
 playbook aims to automate the deployment and configuration of a Flask application on multiple nodes, configure HAproxy load balancer and SNMP monitoring, and set up monitoring tools such as Prometheus and Grafana on a Bastion host.
 The script utilizes various OpenStack commands, subprocess calls, and Python libraries like dotenv, datetime, requests, and socket to perform the necessary operations.
-**Before running the programs make sure to install above listed libraries..**
-command to run:  
-           sudo mv install /usr/local/bin/
-           install openrc tag sshkey 
- 
+
 *operate
  
 Operate program  automates the deployment and management of a set of nodes in an OpenStack environment. It utilizes the OpenStack command-line tools and Ansible playbook for server creation, configuration, and deployment. The program reads a configuration file, server.conf, to determine the required number of nodes and checks the existing nodes in the environment. If the required number of nodes is not met, the program creates new nodes, fetches their IP addresses, and updates the hosts and SSH config files. It then runs an Ansible playbook to deploy the required services on the nodes. Finally, it validates the operation by accessing the nodes' IP addresses and prints the response content.
 
- command to run: 
-            sudo mv operate /usr/local/bin/
-            operate openrc tag sshkey  
- 
 *cleanup
  
 Cleanup program cleans up resources created by the operate and install  programs in an OpenStack environment. It deletes the nodes, servers, subnets, networks, routers, key pairs, security groups, and volumes associated with the specified project. The program uses the OpenStack command-line tools to perform the cleanup tasks and prints the status of the remaining resources after the cleanup process is completed.
 
- command to run: 
-            sudo mv cleanup /usr/local/bin/
-            cleanup openrc tag  
+ commands to run: 
+           sudo mv install /usr/local/bin/
+           sudo mv operate /usr/local/bin/
+           sudo mv operate /usr/local/bin/
+           install openrc tag sshkey 
+           operate openrc tag sshkey 
+           cleanup openrc tag  
+
+**Before running the programs, please ensure that you have installed the Python libraries mentioned above in the install script and have the rc file and SSH key in the current folder.**
 
