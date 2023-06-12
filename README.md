@@ -24,11 +24,11 @@ Operate program  automates the deployment and management of a set of nodes in an
 Cleanup program cleans up resources created by the operate and install  programs in an OpenStack environment. It deletes the nodes, servers, subnets, networks, routers, key pairs, security groups, and volumes associated with the specified project. The program uses the OpenStack command-line tools to perform the cleanup tasks and prints the status of the remaining resources after the cleanup process is completed.
 
  commands to run: 
-           sudo mv install /usr/local/bin/
-           sudo mv operate /usr/local/bin/
-           sudo mv operate /usr/local/bin/
-           install openrc tag sshkey 
-           operate openrc tag sshkey 
+           sudo mv install /usr/local/bin/ \n
+           sudo mv operate /usr/local/bin/ \n
+           sudo mv operate /usr/local/bin/ \n
+           install openrc tag sshkey \n 
+           operate openrc tag sshkey \n
            cleanup openrc tag  
 
 **Before running the programs, please ensure that you have installed the Python libraries mentioned above in the install script and have the rc file and SSH key in the current folder.**
