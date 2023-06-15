@@ -23,13 +23,11 @@ Operate program  automates the deployment and management of a set of nodes in an
  
 Cleanup program cleans up resources created by the operate and install  programs in an OpenStack environment. It deletes the nodes, servers, subnets, networks, routers, key pairs, security groups, and volumes associated with the specified project. The program uses the OpenStack command-line tools to perform the cleanup tasks and prints the status of the remaining resources after the cleanup process is completed.
 
- commands to run: 
-          
-          sudo mv install /usr/local/bin/ 
-           
-           sudo mv operate /usr/local/bin/ 
-           
-           sudo mv operate /usr/local/bin/ 
+ commands to run: (after cloning )
+        
+           chmod +x install operate cleanup
+
+           sudo mv install operate cleanup /usr/local/bin/ 
            
            install openrc tag sshkey  
            
