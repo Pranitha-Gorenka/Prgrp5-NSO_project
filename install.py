@@ -141,7 +141,12 @@ else:
     create_flask_rule = f"openstack security group rule create --protocol tcp --dst-port 5000 {tag}_security-group" 
     create_snmp_rule = f"openstack security group rule create --protocol udp --dst-port 6000 {tag}_security-group"
     create_snmpd_rule = f"openstack security group rule create --protocol udp --dst-port 161 {tag}_security-group"
-    create_icmp_rule = f"openstack security group rule create --protocol icmp --dst-port 22 {tag}_security-group"
+    create_icmp_rule = f"openstack security group rule create --protocol icmp --dst-port 80 {tag}_security-group"
+    create_rule1=f"openstack security group rule create --protocol tcp --dst-port 9090 {tag}_security-group"
+    create_rule2=f"openstack security group rule create --protocol tcp --dst-port 9100 {tag}_security-group"
+    create_rule3=f"openstack security group rule create --protocol tcp --dst-port 3000 {tag}_security-group"
+    create_rule4=f"openstack security group rule create --protocol tcp --dst-port 8080 {tag}_security-group"
+    create_rule5=f"openstack security group rule create --protocol 112 {tag}_security-group"
 
     subprocess.run(create_ssh_rule, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.run(create_http_rule, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -150,6 +155,11 @@ else:
     subprocess.run(create_snmp_rule, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.run(create_snmpd_rule, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.run(create_icmp_rule, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(create_rule1, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(create_rule2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(create_rule3, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(create_rule4, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(create_rule5, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     
     if execution7.returncode == 0:
         print(f"{formatted_time}: Created a  {tag}_security-group and added the required rules.")
