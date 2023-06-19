@@ -342,7 +342,7 @@ with open(hosts_file_path, "w") as hosts_file:
     hosts_file.write("proxy2 \n")
     hosts_file.write("\n")
 
-    hosts_file.write("[nodes]\n")
+    hosts_file.write("[webservers]\n")
     hosts_file.write(f"node1\n")
     hosts_file.write(f"node2\n")
     hosts_file.write(f"node3\n")
