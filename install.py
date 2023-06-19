@@ -57,7 +57,7 @@ def get_ip_address():
 
 current_ips = get_ip_address()
 for ip in current_ips:
-    print(ip)
+    print(" ")
     
 network_list = "openstack network list"
 network_name = subprocess.run(network_list, shell=True, capture_output=True, text=True).stdout
@@ -78,7 +78,7 @@ else:
         sys.exit(1)
     
     # Create subnet
-    create_subnet = f"openstack subnet create {tag}_network-subnet --network {tag}_network --subnet-range {ip}"
+    create_subnet = f"openstack subnet create {tag}_network-subnet --network {tag}_network --subnet-range 10.0.1.0/27"
     execution2 = subprocess.run(create_subnet, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     if execution2.returncode == 0:
         print(f"{formatted_time}: creating a {tag}_network-subnet for {tag}_network..")
@@ -347,7 +347,7 @@ with open(hosts_file_path, "w") as hosts_file:
     hosts_file.write(f"node2\n")
     hosts_file.write(f"node3\n")
     hosts_file.write("\n[all:vars]\nansible_user=ubuntu \n")
-    hosts_file.write("\nansible_ssh_private_key_file=~/.ssh/id_rsa \n")
+    hosts_file.write("ansible_ssh_private_key_file=~/.ssh/id_rsa \n")
     hosts_file.write(f"ansible_ssh_common_args=' -F {tag}_SSHconfig ' \n")
 
 # Run Ansible playbook for deplyoment
