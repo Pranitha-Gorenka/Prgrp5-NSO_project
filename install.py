@@ -40,7 +40,25 @@ auth_url = os.getenv("OS_AUTH_URL")
 print(f"{formatted_time}: Starting deployment of {tag} using {openrc_file} for credentials. ")
 # Define server names
 server_names = ["node1", "node2", "node3", "proxy2", "proxy1", "bastion" ]
+# Fetching the private IP address with subnet range
 
+def get_ip_address():
+    # Using subprocess to run 'ip' command
+    ip_process = subprocess.Popen(['ip', 'address'], stdout=subprocess.PIPE)
+    output = ip_process.communicate()[0].decode('utf-8')
+
+    # Extracting the private IP address with subnet range using regular expressions
+    pattern = r'inet (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d+)'
+
+    ip_matches = re.findall(pattern, output, re.DOTALL)
+    private_ips = [ip.strip() for ip in ip_matches if not ip.startswith('127.')]
+
+    return private_ips
+
+current_ips = get_ip_address()
+for ip in current_ips:
+    print(ip)
+    
 network_list = "openstack network list"
 network_name = subprocess.run(network_list, shell=True, capture_output=True, text=True).stdout
 
@@ -60,7 +78,7 @@ else:
         sys.exit(1)
     
     # Create subnet
-    create_subnet = f"openstack subnet create {tag}_network-subnet --network {tag}_network --subnet-range 10.0.1.0/27"
+    create_subnet = f"openstack subnet create {tag}_network-subnet --network {tag}_network --subnet-range {ip}"
     execution2 = subprocess.run(create_subnet, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     if execution2.returncode == 0:
         print(f"{formatted_time}: creating a {tag}_network-subnet for {tag}_network..")
@@ -256,7 +274,7 @@ print(floating_ip_proxy1)
 ssh_config_content = f"""Host bastion
   HostName {floating_ip_bastion}
   User ubuntu
-  IdentityFile ~/.ssh/authorized_keys
+  IdentityFile ~/.ssh/id_rsa
   UserKnownHostsFile=~/dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
@@ -264,7 +282,7 @@ ssh_config_content = f"""Host bastion
 Host proxy1
   HostName {floating_ip_proxy1}
   User ubuntu
-  IdentityFile ~/.ssh/authorized_keys
+  IdentityFile ~/.ssh/id_rsa
   UserKnownHostsFile=~/dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
@@ -273,7 +291,7 @@ Host proxy1
 Host proxy2
   HostName {node_ips[0]}
   User ubuntu
-  IdentityFile ~/.ssh/authorized_keys
+  IdentityFile ~/.ssh/id_rsa
   UserKnownHostsFile=~/dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
@@ -282,7 +300,7 @@ Host proxy2
 Host node1
   HostName {node_ips[1]}
   User ubuntu
-  IdentityFile ~/.ssh/authorized_keys
+  IdentityFile ~/.ssh/id_rsa
   UserKnownHostsFile=~/dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
@@ -291,7 +309,7 @@ Host node1
 Host node2
   HostName {node_ips[2]}
   User ubuntu
-  IdentityFile ~/.ssh/authorized_keys
+  IdentityFile ~/.ssh/id_rsa
   UserKnownHostsFile=~/dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
@@ -300,7 +318,7 @@ Host node2
 Host node3
   HostName {node_ips[3]}
   User ubuntu
-  IdentityFile ~/.ssh/authorized_keys
+  IdentityFile ~/.ssh/id_rsa
   UserKnownHostsFile=~/dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no 
@@ -329,19 +347,19 @@ with open(hosts_file_path, "w") as hosts_file:
     hosts_file.write(f"node2\n")
     hosts_file.write(f"node3\n")
     hosts_file.write("\n[all:vars]\nansible_user=ubuntu \n")
-    hosts_file.write("\n##REMOVED sshkey entry, handled by external SSH config file ##  \n")
-    
+    hosts_file.write("\nansible_ssh_private_key_file=~/.ssh/id_rsa \n")
+    hosts_file.write(f"ansible_ssh_common_args=' -F {tag}_SSHconfig ' \n")
 
 # Run Ansible playbook for deplyoment
 print(f"{formatted_time}: Running playbook")
 ansible_playbook = f"ansible-playbook -i hosts --ssh-common-args='-F./{tag}_SSHconfig' site.yaml"
-playbook_execution = subprocess.run(ansible_playbook, shell=True)
+playbook_execution = subprocess.run(ansible_playbook, shell=True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 if playbook_execution.returncode == 0:
     print(f"{formatted_time}: OK")
 else:
     ansible_playbook1 = f"ansible-playbook -i hosts site.yaml"
-    playbook_execution1 = subprocess.run(ansible_playbook1, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    playbook_execution1 = subprocess.run(ansible_playbook1, shell=True)
     if playbook_execution1.returncode == 0:
         print(f"{formatted_time}: OK")
     else: 
