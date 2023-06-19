@@ -1,4 +1,4 @@
-- hosts: nodes
+- hosts: webservers
   become: true
   gather_facts: false
 
