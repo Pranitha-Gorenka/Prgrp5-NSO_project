@@ -106,7 +106,7 @@ while True:
                 new_node_number += 1
                 new_node_name = f"node{new_node_number}"
 
-            create_server = f"openstack server create --flavor b.1c1gb --network {tag}_network --key-name {tag}_key --boot-from-volume 8 --image e6cbd963-8c28-4551-a837-e3b85da5d7a1 --security-group {tag}_security-group --wait {new_node_name}"
+            create_server = f"openstack server create --flavor b.1c1gb --network {tag}_network --key-name {tag}_key --boot-from-volume 20 --image 6899d08d-cfa1-4e8d-80f5-bd61195f16fe --security-group {tag}_security-group --wait {new_node_name}"
             subprocess.run(create_server, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             existing_nodes.append(new_node_name)
             print(f"{formatted_time}: Detecting lostnode : {tag}_{new_node_name} .")
