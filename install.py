@@ -197,7 +197,7 @@ for server_name in server_names:
         print(f"{formatted_time}: Server '{server_name}' already exists.")
         continue  # Skip creating the server
     else:
-        create_server = f"openstack server create --flavor b.1c1gb --network {tag}_network --key-name {tag}_key --boot-from-volume 8 --image e6cbd963-8c28-4551-a837-e3b85da5d7a1 --security-group {tag}_security-group --wait {server_name}"
+        create_server = f"openstack server create --flavor b.1c1gb --network {tag}_network --key-name {tag}_key --boot-from-volume 20 --image 6899d08d-cfa1-4e8d-80f5-bd61195f16fe --security-group {tag}_security-group --wait {server_name}"
         subprocess.run(create_server, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         print(f"{formatted_time}:Creating server {server_name}...")
         
