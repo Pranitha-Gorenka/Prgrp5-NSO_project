@@ -15,12 +15,9 @@ vrrp_instance VI_1 {
         auth_pass prani123
     }
     virtual_ipaddress {
-       {% for host in groups["HAproxy"] %}
-        server {{ host }} {{ hostvars[host]["ansible_default_ipv4"]["address"] }}/24 dev ens3
-{% endfor %} 
+        {{ virtual_ip }}/24
     }
-    track_script {
-        check_haproxy
+    
     }
 }
 
